@@ -36,6 +36,8 @@ return [
     'rename_file_folder'     => 'Datei/Ordner umbenennen',
     'success_uploaded_file'  => 'Neue Datei erfolgreich hochgeladen!',
     'success_uploading'      => 'Bild erfolgreich hochgeladen!',
+    'success_moved'          => 'Datei/Ordner erfolgreich verschoben',
+    'success_renamed'        => 'Datei/Ordner erfolgreich umbenannt',
     'uploading_wrong_type'   => 'Fehler beim Hochladen: Nicht unterstütztes Dateiformat oder Datei zu groß zum Hochladen!',
     'crop'                   => 'Beschneiden',
     'crop_and_create'        => 'Beschneiden & erstellen',
@@ -51,4 +53,5 @@ return [
     'browser_video_support'  => 'Ihr Browser unterstützt das Video Tag nicht.',
     'browser_audio_support'  => 'Ihr Browser unterstützt das Audio Tag nicht.',
     'width'                  => 'Breite: ',
+    'add_all_selected'       => 'Alle ausgewählten hinzufügen',
 ];

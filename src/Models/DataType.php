@@ -95,9 +95,10 @@ class DataType extends Model
             }
 
             if ($this->fill($requestData)->save()) {
-                $fields = $this->fields((strlen($this->model_name) != 0)
-                    ? app($this->model_name)->getTable()
-                    : Arr::get($requestData, 'name')
+                $fields = $this->fields(
+                    (strlen($this->model_name) != 0)
+                    ? DB::getTablePrefix().app($this->model_name)->getTable()
+                    : DB::getTablePrefix().Arr::get($requestData, 'name')
                 );
 
                 $requestData = $this->getRelationships($requestData, $fields);
@@ -116,9 +117,17 @@ class DataType extends Model
                     $dataRow->display_name = $requestData['field_display_name_'.$field];
                     $dataRow->order = intval($requestData['field_order_'.$field]);
 
+                    // Prepare Translations and Transform data
+                    $translations = (is_bread_translatable($dataRow) && !empty($requestData['field_display_name_'.$field.'_i18n']))
+                        ? $dataRow->prepareTranslationsFromArray($field, $requestData)
+                        : [];
+
                     if (!$dataRow->save()) {
                         throw new \Exception(__('voyager::database.field_safe_failed', ['field' => $field]));
                     }
+
+                    // Save translations if applied
+                    $dataRow->saveTranslations($translations);
                 }
 
                 // Clean data_rows that don't have an associated field
@@ -190,7 +199,9 @@ class DataType extends Model
                         'taggable'    => $requestData['relationship_taggable_'.$relationship] ?? '0',
                     ];
 
-                    $requestData['field_details_'.$relationship] = json_encode($relationshipDetails);
+                    $details = json_decode($requestData['field_details_'.$relationship], true);
+                    $merge = array_merge($details, $relationshipDetails);
+                    $requestData['field_details_'.$relationship] = json_encode($merge);
                 }
             }
         }
@@ -203,7 +214,8 @@ class DataType extends Model
         // Get ordered BREAD fields
         $orderedFields = $this->rows()->pluck('field')->toArray();
 
-        $_fieldOptions = SchemaManager::describeTable((strlen($this->model_name) != 0)
+        $_fieldOptions = SchemaManager::describeTable(
+            (strlen($this->model_name) != 0)
             ? app($this->model_name)->getTable()
             : $this->name
         )->toArray();
